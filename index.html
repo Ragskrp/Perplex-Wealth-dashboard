@@ -2,45 +2,44 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>Personal Finance Tracker</title>
+  <title>Personal Finance Dashboard</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
-  <!-- Chart.js -->
-  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-  <!-- Authentication Section -->
+<body class="dark-ui">
+  
+  <!-- Authentication Section - Shows when not signed in -->
   <div id="auth-section">
-    <div class="auth-container">
-      <div class="auth-card">
-        <div class="logo">
-          <div class="logo-icon">OL</div>
-          <h2>Personal Finance Tracker</h2>
-        </div>
-        <p id="welcome-msg">Please sign in to access your dashboard</p>
-        <button id="sign-in-btn" class="auth-btn">
-          <svg width="20" height="20" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
-            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
-          </svg>
-          Sign in with Google
-        </button>
-        <button id="sign-out-btn" class="auth-btn sign-out" style="display:none;">Sign Out</button>
+    <div class="auth-card">
+      <div class="logo">
+        <div class="logo-icon">OL</div>
+        <span class="logo-text">Other Level's</span>
       </div>
+      <h2>Personal Finance Dashboard</h2>
+      <p id="welcome-msg">Sign in to access your financial dashboard</p>
+      <button id="sign-in-btn" class="google-signin-btn">
+        <svg width="18" height="18" viewBox="0 0 24 24">
+          <path fill="#4285f4" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+          <path fill="#34a853" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+          <path fill="#fbbc05" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+          <path fill="#ea4335" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+        </svg>
+        Sign in with Google
+      </button>
+      <button id="sign-out-btn" style="display:none;" class="signout-btn">Sign Out</button>
     </div>
   </div>
 
-  <!-- Main Dashboard -->
-  <div id="dashboard" style="display:none;">
-    <!-- Header -->
-    <header class="header">
+  <!-- Main Dashboard - Shows when signed in -->
+  <div id="dashboard-container" style="display:none;">
+    <header>
       <div class="header-left">
         <div class="logo">
           <div class="logo-icon">OL</div>
@@ -49,146 +48,173 @@
         <h1>Personal Finance Tracker</h1>
       </div>
       <div class="header-center">
-        <nav class="nav-buttons">
-          <button class="nav-btn active">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
-            </svg>
-            Dashboard
-          </button>
-          <button class="nav-btn">
-            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
-              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
-            </svg>
-            Spreadsheet
-          </button>
-        </nav>
+        <button class="nav-btn active">📊 Dashboard</button>
+        <button class="nav-btn">📋 Spreadsheet</button>
       </div>
       <div class="header-right">
-        <div class="date-display" id="current-date">Sunday, July 19, 2025</div>
-        <div class="user-info" id="user-info" style="display:none;">
-          <div class="user-details">
-            <span class="user-name" id="user-name"></span>
-            <span class="user-title">Finance Manager</span>
-          </div>
-          <img class="user-avatar" id="user-avatar" alt="User Avatar">
+        <span id="current-date"></span>
+        <div class="user-info">
+          <span id="user-email"></span>
+          <img id="user-avatar" src="" alt="User Avatar">
+          <button id="header-signout-btn" class="signout-btn">Sign Out</button>
         </div>
       </div>
     </header>
 
-    <!-- Main Content -->
-    <main class="main-content">
-      <div class="status-bar">
-        <span id="status"></span>
-      </div>
-
+    <main>
       <!-- Top Overview Cards -->
-      <section class="top-overview">
-        <div class="card balance-card">
+      <section id="summary">
+        <div class="card available-balance">
           <h3>Available Balance</h3>
-          <div class="balance-amount" id="availableBalance">$0</div>
+          <p id="availableBalance">$0</p>
         </div>
-        <div class="card net-worth-card">
+        <div class="card net-worth">
           <h3>Total Net Worth</h3>
-          <div class="net-worth-amount" id="netWorth">$0</div>
+          <p id="netWorth">$0</p>
+        </div>
+        <div class="card">
+          <h3>Total Assets</h3>
+          <p id="totalAssets">$0</p>
+        </div>
+        <div class="card">
+          <h3>Total Liabilities</h3>
+          <p id="totalLiabilities">$0</p>
+        </div>
+        <div class="card">
+          <h3>Total Insurance</h3>
+          <p id="totalInsurance">$0</p>
         </div>
       </section>
 
-      <!-- Financial Overview -->
-      <section class="financial-overview">
-        <div class="card">
-          <h3>Spendings</h3>
-          <div class="amount spending-amount" id="totalSpendings">$0</div>
-        </div>
-        <div class="card">
-          <h3>Income</h3>
-          <div class="amount income-amount" id="totalIncome">$0</div>
-        </div>
-        <div class="card goal-card">
-          <h3>Income Goal</h3>
-          <div class="goal-info">
-            <div class="goal-percentage" id="goalPercentage">0%</div>
-            <div class="goal-text">Progress to goal</div>
-            <div class="goal-amounts">
-              <span id="currentIncome">$0</span> / <span id="goalAmount">$50,000</span>
-            </div>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
-          </div>
-        </div>
-      </section>
-
-      <!-- Charts and Breakdown -->
-      <section class="breakdown-section">
-        <!-- Income Sources -->
-        <div class="card income-sources-card">
+      <!-- Financial Breakdown Section -->
+      <section class="financial-breakdown">
+        <div class="card income-sources">
           <h3>Income Sources</h3>
-          <div class="income-sources" id="incomeSources">
-            <!-- Dynamic content -->
-          </div>
-        </div>
-
-        <!-- Spending Categories -->
-        <div class="card">
-          <h3>Spending Categories</h3>
-          <div class="spending-categories" id="spendingChart">
-            <canvas id="spendingDonutChart" width="300" height="300"></canvas>
-          </div>
-        </div>
-
-        <!-- Assets Allocation -->
-        <div class="card">
-          <h3>Assets Allocation</h3>
-          <div class="assets-chart">
-            <canvas id="assetsDonutChart" width="300" height="300"></canvas>
-          </div>
-        </div>
-      </section>
-
-      <!-- Notifications -->
-      <section class="notifications-section">
-        <div class="card notification-card">
-          <h3>Notifications</h3>
-          <div class="notification-item">
-            <div class="notification-icon">⚠️</div>
-            <div class="notification-text">
-              <strong>3 Bills are past Due.</strong> Pay soon to avoid late fees.
-            </div>
+          <div id="incomeSourcesList">
+            <!-- Populated by JavaScript -->
           </div>
         </div>
         
-        <div class="card pets-card">
-          <h3>Expenses for My Dogs and Cats</h3>
-          <div class="pets-expenses">
-            <div class="pets-icon">🐕</div>
-            <div class="expense-items">
-              <div class="expense-item">
-                <span class="expense-count">140</span>
-                <span class="expense-label">Routine Vet</span>
-              </div>
-              <div class="expense-item">
-                <span class="expense-count">950</span>
-                <span class="expense-label">Food</span>
-              </div>
-              <div class="expense-item">
-                <span class="expense-count">231</span>
-                <span class="expense-label">Food Treats</span>
-              </div>
-              <div class="expense-item">
-                <span class="expense-count">65</span>
-                <span class="expense-label">Kennel Boarding</span>
-              </div>
+        <div class="card spending-categories">
+          <h3>Spending Categories</h3>
+          <div class="chart-container">
+            <canvas id="spendingChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+        
+        <div class="card asset-allocation">
+          <h3>Asset Allocation</h3>
+          <div class="chart-container">
+            <canvas id="assetChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Goal Progress Section -->
+      <section class="goal-section">
+        <div class="card goal-progress">
+          <h3>Monthly Income Goal</h3>
+          <div class="progress-info">
+            <span id="goalProgress">61%</span>
+            <span>Income Goal Progress</span>
+            <span id="goalDetails">$24,050 / $39,276</span>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 61%;"></div>
+          </div>
+        </div>
+        
+        <div class="card notifications">
+          <h3>🔔 Notifications</h3>
+          <div class="notification-item">
+            <span class="notification-text">3 Bills are past Due, Pay soon to avoid late fees.</span>
+          </div>
+        </div>
+      </section>
+
+      <!-- Pet Expenses Example -->
+      <section class="custom-section">
+        <div class="card pets-expenses">
+          <h3>🐕 Expenses for My Dogs and Cats</h3>
+          <div id="petExpensesList">
+            <div class="pet-expense-item">
+              <span class="expense-name">Routine Vet</span>
+              <span class="expense-amount">140</span>
+            </div>
+            <div class="pet-expense-item">
+              <span class="expense-name">Food</span>
+              <span class="expense-amount">950</span>
+            </div>
+            <div class="pet-expense-item">
+              <span class="expense-name">Food Treats</span>
+              <span class="expense-amount">231</span>
+            </div>
+            <div class="pet-expense-item">
+              <span class="expense-name">Kennel Boarding</span>
+              <span class="expense-amount">65</span>
             </div>
           </div>
         </div>
       </section>
 
-      <!-- Data Management -->
-      <section class="data-management">
-        <div class="card">
-          <h3>Add/Update Financial Data</h3>
-          <div class="form-container">
+      <!-- Data Tables Section -->
+      <section id="dataTables">
+        <div class="table-container">
+          <h2>Assets Overview</h2>
+          <table id="assetsTable">
+            <thead>
+              <tr>
+                <th>Type</th>
+                <th>Name</th>
+                <th>Institution/Provider</th>
+                <th>Value</th>
+                <th>Currency</th>
+                <th>Details</th>
+              </tr>
+            </thead>
+            <tbody id="assetsTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="table-container">
+          <h2>Liabilities Overview</h2>
+          <table id="liabilitiesTable">
+            <thead>
+              <tr>
+                <th>Name</th>
+                <th>Institution</th>
+                <th>Amount</th>
+                <th>Currency</th>
+                <th>Due Date</th>
+              </tr>
+            </thead>
+            <tbody id="liabilitiesTbody"></tbody>
+          </table>
+        </div>
+
+        <div class="table-container">
+          <h2>Insurance Policies</h2>
+          <table id="insuranceTable">
+            <thead>
+              <tr>
+                <th>Policy</th>
+                <th>Provider</th>
+                <th>Coverage</th>
+                <th>Currency</th>
+                <th>Premium</th>
+                <th>Expiry</th>
+              </tr>
+            </thead>
+            <tbody id="insuranceTbody"></tbody>
+          </table>
+        </div>
+      </section>
+
+      <!-- Add/Update Form Section -->
+      <section id="forms">
+        <div class="form-container">
+          <h2>Add New Financial Entry</h2>
+          <div class="form-wrapper">
             <select id="entryType" class="form-select">
               <option>Bank</option>
               <option>Investment</option>
@@ -197,79 +223,30 @@
               <option>Liability</option>
               <option>Insurance</option>
             </select>
-            <form id="entryForm" class="entry-form">
-              <input required type="text" id="inputName" placeholder="Name/Account/Policy" class="form-input">
-              <input required type="text" id="inputInstitution" placeholder="Institution/Provider" class="form-input">
-              <input required type="number" step="0.01" id="inputValue" placeholder="Value/Balance/Coverage" class="form-input">
-              <input required type="text" id="inputCurrency" placeholder="Currency (e.g. USD)" class="form-input">
-              <input type="text" id="inputDetails" placeholder="Other Details" class="form-input">
-              <input type="date" id="inputDate" placeholder="Date/Due/Expiry" class="form-input">
-              <button type="submit" class="form-btn">Add/Update</button>
+            <form id="entryForm">
+              <div class="form-grid">
+                <input required type="text" id="inputName" placeholder="Name/Account/Policy" class="form-input">
+                <input required type="text" id="inputInstitution" placeholder="Institution/Provider" class="form-input">
+                <input required type="number" step="0.01" id="inputValue" placeholder="Value/Balance/Coverage" class="form-input">
+                <input required type="text" id="inputCurrency" placeholder="Currency (e.g. USD)" class="form-input">
+                <input type="text" id="inputDetails" placeholder="Other Details" class="form-input">
+                <input type="date" id="inputDate" placeholder="Date/Due/Expiry" class="form-input">
+              </div>
+              <div class="form-actions">
+                <button type="submit" class="btn-primary">Add/Update Entry</button>
+                <button id="saveBtn" type="button" class="btn-save">💾 Save to Cloud</button>
+              </div>
             </form>
-            <button id="saveBtn" type="button" class="save-btn">💾 Save to Cloud</button>
-          </div>
-        </div>
-      </section>
-
-      <!-- Data Tables -->
-      <section class="data-tables">
-        <div class="card">
-          <h3>Assets Overview</h3>
-          <div class="table-container">
-            <table id="assetsTable" class="data-table">
-              <thead>
-                <tr>
-                  <th>Type</th>
-                  <th>Name</th>
-                  <th>Institution/Provider</th>
-                  <th>Value</th>
-                  <th>Currency</th>
-                  <th>Details</th>
-                </tr>
-              </thead>
-              <tbody id="assetsTbody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Liabilities Overview</h3>
-          <div class="table-container">
-            <table id="liabilitiesTable" class="data-table">
-              <thead>
-                <tr>
-                  <th>Name</th>
-                  <th>Institution</th>
-                  <th>Amount</th>
-                  <th>Currency</th>
-                  <th>Due Date</th>
-                </tr>
-              </thead>
-              <tbody id="liabilitiesTbody"></tbody>
-            </table>
-          </div>
-        </div>
-
-        <div class="card">
-          <h3>Insurance Policies</h3>
-          <div class="table-container">
-            <table id="insuranceTable" class="data-table">
-              <thead>
-                <tr>
-                  <th>Policy</th>
-                  <th>Provider</th>
-                  <th>Coverage</th>
-                  <th>Currency</th>
-                  <th>Premium</th>
-                  <th>Expiry</th>
-                </tr>
-              </thead>
-              <tbody id="insuranceTbody"></tbody>
-            </table>
           </div>
         </div>
       </section>
     </main>
+
+    <footer>
+      <div class="status-bar">
+        <span id="status">Ready</span>
+      </div>
+    </footer>
   </div>
 
   <script src="app.js"></script>
