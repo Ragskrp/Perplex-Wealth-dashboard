@@ -1,4 +1,4 @@
-// -- 1. Allowed email list (whitelist): EDIT this for your allowed users --
+// --- ALLOWED EMAILS --- 
 const allowedEmails = [
   "ragskrp@gmail.com",
   "shilpasingireddy21@gmail.com"
@@ -19,13 +19,12 @@ const db = firebase.firestore();
 const auth = firebase.auth();
 
 let currentUser = null;
-
 const statusSpan = document.getElementById('status');
 const signInBtn = document.getElementById('sign-in-btn');
 const signOutBtn = document.getElementById('sign-out-btn');
 const welcomeMsg = document.getElementById('welcome-msg');
 
-// -- Dashboard data structure --
+// --- DASHBOARD DATA ---
 let dashboardData = {
   Bank: [], Investments: [], Properties: [], OtherAssets: [],
   Liabilities: [], Insurance: []
@@ -33,31 +32,20 @@ let dashboardData = {
 
 function setStatus(m) { statusSpan.textContent = m; }
 
-// -- Auth UI/state --
 function updateAuthUI(user) {
-  if (user) {
-    welcomeMsg.textContent = `Welcome, ${user.email}`;
-    signInBtn.style.display = 'none';
-    signOutBtn.style.display = 'inline-block';
-    document.getElementById('forms').style.display = '';
-    document.getElementById('dataTables').style.display = '';
-    document.getElementById('summary').style.display = '';
-  } else {
-    welcomeMsg.textContent = 'Not signed in';
-    signInBtn.style.display = 'inline-block';
-    signOutBtn.style.display = 'none';
-    document.getElementById('forms').style.display = 'none';
-    document.getElementById('dataTables').style.display = 'none';
-    document.getElementById('summary').style.display = 'none';
-  }
+  const show = user ? "" : "none";
+  welcomeMsg.textContent = user ? `Welcome, ${user.email}` : "Not signed in";
+  signInBtn.style.display = user ? "none" : "";
+  signOutBtn.style.display = user ? "" : "none";
+  document.getElementById('forms').style.display = show;
+  document.getElementById('dataTables').style.display = show;
+  document.getElementById('summary').style.display = show;
 }
 
-// -- Show/hide UI depending on sign-in --
 window.addEventListener('DOMContentLoaded', ()=>{
-  updateAuthUI(null); // hide everything until login
+  updateAuthUI(null);
 });
 
-// -- Auth event handlers --
 signInBtn.onclick = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(e => setStatus("Sign-in failed: " + e.message));
@@ -66,7 +54,7 @@ signOutBtn.onclick = () => auth.signOut();
 
 auth.onAuthStateChanged(user => {
   if (user) {
-    if (allowedEmails.includes((user.email || '').toLowerCase())) {
+    if (allowedEmails.includes((user.email || "").toLowerCase())) {
       currentUser = user;
       updateAuthUI(user);
       loadDashboard();
@@ -84,16 +72,13 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-// -- Fallback for hidden "Load" button (load on login instead) --
 document.getElementById('loadBtn').style.display = 'none';
 
-// -- Firestore doc key per user
 function userDocKey() {
   if (!currentUser) throw new Error("No user signed in");
   return "dashboard_" + currentUser.uid;
 }
 
-// -- Firestore Save/Load --
 function saveDashboard() {
   if (!currentUser) return setStatus("Sign in first");
   db.collection('dashboards').doc(userDocKey()).set(dashboardData)
@@ -120,7 +105,6 @@ function clearDashboard() {
   redrawDashboard();
 }
 
-// -- Dashboard redraw --
 function redrawDashboard() {
   document.getElementById('bankTotal').textContent =
     fmtMoney(sumArr(dashboardData.Bank, 'value'));
@@ -134,7 +118,6 @@ function redrawDashboard() {
     fmtMoney(sumArr(dashboardData.Liabilities, 'value'));
   document.getElementById('insuranceTotal').textContent =
     fmtMoney(sumArr(dashboardData.Insurance, 'value'));
-  // Net Worth = assets + insurance - liabilities
   const assetsTotal =
     sumArr(dashboardData.Bank, 'value') +
     sumArr(dashboardData.Investments, 'value') +
@@ -145,7 +128,6 @@ function redrawDashboard() {
   document.getElementById('netWorth').textContent =
     fmtMoney(assetsTotal - liabilitiesTotal);
 
-  // Fill assets table
   const assetsTbody = document.getElementById('assetsTbody');
   assetsTbody.innerHTML = '';
   ['Bank', 'Investments', 'Properties', 'OtherAssets'].forEach(type => {
@@ -153,20 +135,17 @@ function redrawDashboard() {
       assetsTbody.appendChild(assetRow(type, row));
     });
   });
-  // Liabilities
   const liabilitiesTbody = document.getElementById('liabilitiesTbody');
   liabilitiesTbody.innerHTML = '';
   dashboardData.Liabilities.forEach(row => {
     liabilitiesTbody.appendChild(liabilityRow(row));
   });
-  // Insurance
   const insuranceTbody = document.getElementById('insuranceTbody');
   insuranceTbody.innerHTML = '';
   dashboardData.Insurance.forEach(row => {
     insuranceTbody.appendChild(insuranceRow(row));
   });
 }
-
 function sumArr(arr, key) {
   return arr.reduce((a, b) => a + Number(b[key] || 0), 0);
 }
@@ -203,8 +182,49 @@ function insuranceRow(row) {
   return tr;
 }
 
-// -- Add/Update form --
 document.getElementById('entryForm').onsubmit = function(e) {
   e.preventDefault();
   if (!currentUser) return setStatus("Sign in first");
-  const type = document.getElementById('entryType
+  const type = document.getElementById('entryType').value;
+  const name = document.getElementById('inputName').value.trim();
+  const institution = document.getElementById('inputInstitution').value.trim();
+  const value = parseFloat(document.getElementById('inputValue').value);
+  const currency = document.getElementById('inputCurrency').value.trim();
+  const details = document.getElementById('inputDetails').value.trim();
+  const date = document.getElementById('inputDate').value;
+  if (!name) return setStatus("Name is required");
+  let entry = {name, value, currency};
+  if(type === 'Bank' || type === 'Investment' || type === 'Property' || type === 'OtherAsset') {
+    entry.institution = institution;
+    if(details) entry.details = details;
+  }
+  if(type === 'Liability') {
+    entry.institution = institution;
+    entry.date = date;
+  }
+  if(type === 'Insurance') {
+    entry.provider = institution;
+    entry.details = details;
+    entry.date = date;
+  }
+  let structKey = '';
+  switch(type) {
+    case 'Bank': structKey = 'Bank'; break;
+    case 'Investment': structKey = 'Investments'; break;
+    case 'Property': structKey = 'Properties'; break;
+    case 'OtherAsset': structKey = 'OtherAssets'; break;
+    case 'Liability': structKey = 'Liabilities'; break;
+    case 'Insurance': structKey = 'Insurance'; break;
+  }
+  let updated = false;
+  dashboardData[structKey] = dashboardData[structKey].map(row =>{
+    if(row.name === name) {
+      updated = true; return entry;
+    } else return row;
+  });
+  if (!updated) dashboardData[structKey].push(entry);
+  redrawDashboard();
+  setStatus(`${updated ? 'Updated' : 'Added'} ${type}`);
+};
+
+document.getElementById('saveBtn').onclick = saveDashboard;
