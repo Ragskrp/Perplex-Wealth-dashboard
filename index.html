@@ -15,13 +15,16 @@
     <h1>My Finance Dashboard</h1>
     <span id="status"></span>
   </header>
+  
   <div id="auth-section">
     <p id="welcome-msg">Not signed in</p>
     <button id="sign-in-btn">Sign in with Google</button>
     <button id="sign-out-btn" style="display:none;">Sign Out</button>
   </div>
+
+  <!-- The dashboard UI is hidden by default; only shown after login -->
   <main>
-    <section id="summary">
+    <section id="summary" style="display:none;">
       <div class="card">
         <h2>Bank Balance</h2>
         <p id="bankTotal">$0</p>
@@ -51,7 +54,7 @@
         <p id="netWorth">$0</p>
       </div>
     </section>
-    <section id="dataTables">
+    <section id="dataTables" style="display:none;">
       <h2>Assets Table</h2>
       <table id="assetsTable">
         <thead>
@@ -94,7 +97,7 @@
         <tbody id="insuranceTbody"></tbody>
       </table>
     </section>
-    <section id="forms">
+    <section id="forms" style="display:none;">
       <h2>Add/Update Item</h2>
       <select id="entryType">
         <option>Bank</option>
@@ -113,6 +116,7 @@
         <input type="date" id="inputDate" placeholder="Date/Due/Expiry">
         <button type="submit">Add/Update</button>
       </form>
+      <button id="saveBtn" type="button">💾 Save to Cloud</button>
     </section>
   </main>
   <script src="app.js"></script>
