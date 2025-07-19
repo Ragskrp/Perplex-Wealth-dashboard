@@ -2,123 +2,276 @@
 <html lang="en">
 <head>
   <meta charset="UTF-8">
-  <title>My Finance Dashboard</title>
+  <title>Personal Finance Tracker</title>
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
   <link href="style.css" rel="stylesheet">
+  <!-- Chart.js -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 </head>
 <body>
-  <header>
-    <h1>My Finance Dashboard</h1>
-    <span id="status"></span>
-  </header>
-  
+  <!-- Authentication Section -->
   <div id="auth-section">
-    <p id="welcome-msg">Not signed in</p>
-    <button id="sign-in-btn">Sign in with Google</button>
-    <button id="sign-out-btn" style="display:none;">Sign Out</button>
+    <div class="auth-container">
+      <div class="auth-card">
+        <div class="logo">
+          <div class="logo-icon">OL</div>
+          <h2>Personal Finance Tracker</h2>
+        </div>
+        <p id="welcome-msg">Please sign in to access your dashboard</p>
+        <button id="sign-in-btn" class="auth-btn">
+          <svg width="20" height="20" viewBox="0 0 24 24">
+            <path fill="currentColor" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
+            <path fill="currentColor" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
+            <path fill="currentColor" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.07H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.93l2.85-2.22.81-.62z"/>
+            <path fill="currentColor" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.07l3.66 2.84c.87-2.6 3.3-4.53 6.16-4.53z"/>
+          </svg>
+          Sign in with Google
+        </button>
+        <button id="sign-out-btn" class="auth-btn sign-out" style="display:none;">Sign Out</button>
+      </div>
+    </div>
   </div>
 
-  <!-- The dashboard UI is hidden by default; only shown after login -->
-  <main>
-    <section id="summary" style="display:none;">
-      <div class="card">
-        <h2>Bank Balance</h2>
-        <p id="bankTotal">$0</p>
+  <!-- Main Dashboard -->
+  <div id="dashboard" style="display:none;">
+    <!-- Header -->
+    <header class="header">
+      <div class="header-left">
+        <div class="logo">
+          <div class="logo-icon">OL</div>
+          <span class="logo-text">Other Level's</span>
+        </div>
+        <h1>Personal Finance Tracker</h1>
       </div>
-      <div class="card">
-        <h2>Investments</h2>
-        <p id="investmentsTotal">$0</p>
+      <div class="header-center">
+        <nav class="nav-buttons">
+          <button class="nav-btn active">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M3 13h8V3H3v10zm0 8h8v-6H3v6zm10 0h8V11h-8v10zm0-18v6h8V3h-8z"/>
+            </svg>
+            Dashboard
+          </button>
+          <button class="nav-btn">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+              <path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/>
+            </svg>
+            Spreadsheet
+          </button>
+        </nav>
       </div>
-      <div class="card">
-        <h2>Properties</h2>
-        <p id="propertiesTotal">$0</p>
+      <div class="header-right">
+        <div class="date-display" id="current-date">Sunday, July 19, 2025</div>
+        <div class="user-info" id="user-info" style="display:none;">
+          <div class="user-details">
+            <span class="user-name" id="user-name"></span>
+            <span class="user-title">Finance Manager</span>
+          </div>
+          <img class="user-avatar" id="user-avatar" alt="User Avatar">
+        </div>
       </div>
-      <div class="card">
-        <h2>Other Assets</h2>
-        <p id="otherAssetsTotal">$0</p>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+      <div class="status-bar">
+        <span id="status"></span>
       </div>
-      <div class="card">
-        <h2>Liabilities</h2>
-        <p id="liabilitiesTotal">$0</p>
-      </div>
-      <div class="card">
-        <h2>Insurance</h2>
-        <p id="insuranceTotal">$0</p>
-      </div>
-      <div class="card">
-        <h2>Net Worth</h2>
-        <p id="netWorth">$0</p>
-      </div>
-    </section>
-    <section id="dataTables" style="display:none;">
-      <h2>Assets Table</h2>
-      <table id="assetsTable">
-        <thead>
-          <tr>
-            <th>Type</th>
-            <th>Name</th>
-            <th>Institution/Provider</th>
-            <th>Value</th>
-            <th>Currency</th>
-            <th>More</th>
-          </tr>
-        </thead>
-        <tbody id="assetsTbody"></tbody>
-      </table>
-      <h2>Liabilities Table</h2>
-      <table id="liabilitiesTable">
-        <thead>
-          <tr>
-            <th>Name</th>
-            <th>Institution</th>
-            <th>Amount</th>
-            <th>Currency</th>
-            <th>Due Date</th>
-          </tr>
-        </thead>
-        <tbody id="liabilitiesTbody"></tbody>
-      </table>
-      <h2>Insurance Table</h2>
-      <table id="insuranceTable">
-        <thead>
-          <tr>
-            <th>Policy</th>
-            <th>Provider</th>
-            <th>Coverage</th>
-            <th>Currency</th>
-            <th>Premium</th>
-            <th>Expiry</th>
-          </tr>
-        </thead>
-        <tbody id="insuranceTbody"></tbody>
-      </table>
-    </section>
-    <section id="forms" style="display:none;">
-      <h2>Add/Update Item</h2>
-      <select id="entryType">
-        <option>Bank</option>
-        <option>Investment</option>
-        <option>Property</option>
-        <option>OtherAsset</option>
-        <option>Liability</option>
-        <option>Insurance</option>
-      </select>
-      <form id="entryForm">
-        <input required type="text" id="inputName" placeholder="Name/Account/Policy">
-        <input required type="text" id="inputInstitution" placeholder="Institution/Provider">
-        <input required type="number" step="0.01" id="inputValue" placeholder="Value/Balance/Coverage">
-        <input required type="text" id="inputCurrency" placeholder="Currency (e.g. USD)">
-        <input type="text" id="inputDetails" placeholder="Other Details">
-        <input type="date" id="inputDate" placeholder="Date/Due/Expiry">
-        <button type="submit">Add/Update</button>
-      </form>
-      <button id="saveBtn" type="button">💾 Save to Cloud</button>
-    </section>
-  </main>
+
+      <!-- Top Overview Cards -->
+      <section class="top-overview">
+        <div class="card balance-card">
+          <h3>Available Balance</h3>
+          <div class="balance-amount" id="availableBalance">$0</div>
+        </div>
+        <div class="card net-worth-card">
+          <h3>Total Net Worth</h3>
+          <div class="net-worth-amount" id="netWorth">$0</div>
+        </div>
+      </section>
+
+      <!-- Financial Overview -->
+      <section class="financial-overview">
+        <div class="card">
+          <h3>Spendings</h3>
+          <div class="amount spending-amount" id="totalSpendings">$0</div>
+        </div>
+        <div class="card">
+          <h3>Income</h3>
+          <div class="amount income-amount" id="totalIncome">$0</div>
+        </div>
+        <div class="card goal-card">
+          <h3>Income Goal</h3>
+          <div class="goal-info">
+            <div class="goal-percentage" id="goalPercentage">0%</div>
+            <div class="goal-text">Progress to goal</div>
+            <div class="goal-amounts">
+              <span id="currentIncome">$0</span> / <span id="goalAmount">$50,000</span>
+            </div>
+          </div>
+          <div class="progress-bar">
+            <div class="progress-fill" id="progressFill" style="width: 0%"></div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Charts and Breakdown -->
+      <section class="breakdown-section">
+        <!-- Income Sources -->
+        <div class="card income-sources-card">
+          <h3>Income Sources</h3>
+          <div class="income-sources" id="incomeSources">
+            <!-- Dynamic content -->
+          </div>
+        </div>
+
+        <!-- Spending Categories -->
+        <div class="card">
+          <h3>Spending Categories</h3>
+          <div class="spending-categories" id="spendingChart">
+            <canvas id="spendingDonutChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+
+        <!-- Assets Allocation -->
+        <div class="card">
+          <h3>Assets Allocation</h3>
+          <div class="assets-chart">
+            <canvas id="assetsDonutChart" width="300" height="300"></canvas>
+          </div>
+        </div>
+      </section>
+
+      <!-- Notifications -->
+      <section class="notifications-section">
+        <div class="card notification-card">
+          <h3>Notifications</h3>
+          <div class="notification-item">
+            <div class="notification-icon">⚠️</div>
+            <div class="notification-text">
+              <strong>3 Bills are past Due.</strong> Pay soon to avoid late fees.
+            </div>
+          </div>
+        </div>
+        
+        <div class="card pets-card">
+          <h3>Expenses for My Dogs and Cats</h3>
+          <div class="pets-expenses">
+            <div class="pets-icon">🐕</div>
+            <div class="expense-items">
+              <div class="expense-item">
+                <span class="expense-count">140</span>
+                <span class="expense-label">Routine Vet</span>
+              </div>
+              <div class="expense-item">
+                <span class="expense-count">950</span>
+                <span class="expense-label">Food</span>
+              </div>
+              <div class="expense-item">
+                <span class="expense-count">231</span>
+                <span class="expense-label">Food Treats</span>
+              </div>
+              <div class="expense-item">
+                <span class="expense-count">65</span>
+                <span class="expense-label">Kennel Boarding</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Management -->
+      <section class="data-management">
+        <div class="card">
+          <h3>Add/Update Financial Data</h3>
+          <div class="form-container">
+            <select id="entryType" class="form-select">
+              <option>Bank</option>
+              <option>Investment</option>
+              <option>Property</option>
+              <option>OtherAsset</option>
+              <option>Liability</option>
+              <option>Insurance</option>
+            </select>
+            <form id="entryForm" class="entry-form">
+              <input required type="text" id="inputName" placeholder="Name/Account/Policy" class="form-input">
+              <input required type="text" id="inputInstitution" placeholder="Institution/Provider" class="form-input">
+              <input required type="number" step="0.01" id="inputValue" placeholder="Value/Balance/Coverage" class="form-input">
+              <input required type="text" id="inputCurrency" placeholder="Currency (e.g. USD)" class="form-input">
+              <input type="text" id="inputDetails" placeholder="Other Details" class="form-input">
+              <input type="date" id="inputDate" placeholder="Date/Due/Expiry" class="form-input">
+              <button type="submit" class="form-btn">Add/Update</button>
+            </form>
+            <button id="saveBtn" type="button" class="save-btn">💾 Save to Cloud</button>
+          </div>
+        </div>
+      </section>
+
+      <!-- Data Tables -->
+      <section class="data-tables">
+        <div class="card">
+          <h3>Assets Overview</h3>
+          <div class="table-container">
+            <table id="assetsTable" class="data-table">
+              <thead>
+                <tr>
+                  <th>Type</th>
+                  <th>Name</th>
+                  <th>Institution/Provider</th>
+                  <th>Value</th>
+                  <th>Currency</th>
+                  <th>Details</th>
+                </tr>
+              </thead>
+              <tbody id="assetsTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Liabilities Overview</h3>
+          <div class="table-container">
+            <table id="liabilitiesTable" class="data-table">
+              <thead>
+                <tr>
+                  <th>Name</th>
+                  <th>Institution</th>
+                  <th>Amount</th>
+                  <th>Currency</th>
+                  <th>Due Date</th>
+                </tr>
+              </thead>
+              <tbody id="liabilitiesTbody"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h3>Insurance Policies</h3>
+          <div class="table-container">
+            <table id="insuranceTable" class="data-table">
+              <thead>
+                <tr>
+                  <th>Policy</th>
+                  <th>Provider</th>
+                  <th>Coverage</th>
+                  <th>Currency</th>
+                  <th>Premium</th>
+                  <th>Expiry</th>
+                </tr>
+              </thead>
+              <tbody id="insuranceTbody"></tbody>
+            </table>
+          </div>
+        </div>
+      </section>
+    </main>
+  </div>
+
   <script src="app.js"></script>
 </body>
 </html>
