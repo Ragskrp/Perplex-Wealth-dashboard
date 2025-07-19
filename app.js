@@ -1,4 +1,4 @@
-// --- ALLOWED EMAILS --- 
+// --- 1. Allowed emails: Replace with your allowed users ---
 const allowedEmails = [
   "ragskrp@gmail.com",
   "shilpasingireddy21@gmail.com"
@@ -24,28 +24,42 @@ const signInBtn = document.getElementById('sign-in-btn');
 const signOutBtn = document.getElementById('sign-out-btn');
 const welcomeMsg = document.getElementById('welcome-msg');
 
-// --- DASHBOARD DATA ---
+// --- DATA STRUCTURE ---
 let dashboardData = {
   Bank: [], Investments: [], Properties: [], OtherAssets: [],
   Liabilities: [], Insurance: []
 };
 
-function setStatus(m) { statusSpan.textContent = m; }
+function setStatus(msg) { statusSpan.textContent = msg; }
 
-function updateAuthUI(user) {
-  const show = user ? "" : "none";
-  welcomeMsg.textContent = user ? `Welcome, ${user.email}` : "Not signed in";
-  signInBtn.style.display = user ? "none" : "";
-  signOutBtn.style.display = user ? "" : "none";
-  document.getElementById('forms').style.display = show;
-  document.getElementById('dataTables').style.display = show;
-  document.getElementById('summary').style.display = show;
+// --- Visibility handling ---
+function updateDashboardVisibility(user) {
+  const display = user ? "" : "none";
+  document.getElementById('summary').style.display = display;
+  document.getElementById('dataTables').style.display = display;
+  document.getElementById('forms').style.display = display;
 }
 
-window.addEventListener('DOMContentLoaded', ()=>{
-  updateAuthUI(null);
+function updateAuthUI(user) {
+  if (user) {
+    welcomeMsg.textContent = `Welcome, ${user.email}`;
+    signInBtn.style.display = 'none';
+    signOutBtn.style.display = '';
+    updateDashboardVisibility(true);
+  } else {
+    welcomeMsg.textContent = 'Not signed in';
+    signInBtn.style.display = '';
+    signOutBtn.style.display = 'none';
+    updateDashboardVisibility(false);
+  }
+}
+
+// Default: hide everything until auth handled
+window.addEventListener('DOMContentLoaded', () => {
+  updateDashboardVisibility(false);
 });
 
+// --- Auth handlers ---
 signInBtn.onclick = () => {
   const provider = new firebase.auth.GoogleAuthProvider();
   auth.signInWithPopup(provider).catch(e => setStatus("Sign-in failed: " + e.message));
@@ -54,7 +68,7 @@ signOutBtn.onclick = () => auth.signOut();
 
 auth.onAuthStateChanged(user => {
   if (user) {
-    if (allowedEmails.includes((user.email || "").toLowerCase())) {
+    if (allowedEmails.includes((user.email || '').toLowerCase())) {
       currentUser = user;
       updateAuthUI(user);
       loadDashboard();
@@ -72,8 +86,7 @@ auth.onAuthStateChanged(user => {
   }
 });
 
-document.getElementById('loadBtn').style.display = 'none';
-
+// --- FIRESTORE PER-USER DOC ---
 function userDocKey() {
   if (!currentUser) throw new Error("No user signed in");
   return "dashboard_" + currentUser.uid;
@@ -105,6 +118,7 @@ function clearDashboard() {
   redrawDashboard();
 }
 
+// --- RENDER UI ---
 function redrawDashboard() {
   document.getElementById('bankTotal').textContent =
     fmtMoney(sumArr(dashboardData.Bank, 'value'));
@@ -118,6 +132,7 @@ function redrawDashboard() {
     fmtMoney(sumArr(dashboardData.Liabilities, 'value'));
   document.getElementById('insuranceTotal').textContent =
     fmtMoney(sumArr(dashboardData.Insurance, 'value'));
+  
   const assetsTotal =
     sumArr(dashboardData.Bank, 'value') +
     sumArr(dashboardData.Investments, 'value') +
@@ -128,6 +143,7 @@ function redrawDashboard() {
   document.getElementById('netWorth').textContent =
     fmtMoney(assetsTotal - liabilitiesTotal);
 
+  // Assets
   const assetsTbody = document.getElementById('assetsTbody');
   assetsTbody.innerHTML = '';
   ['Bank', 'Investments', 'Properties', 'OtherAssets'].forEach(type => {
@@ -135,17 +151,20 @@ function redrawDashboard() {
       assetsTbody.appendChild(assetRow(type, row));
     });
   });
+  // Liabilities
   const liabilitiesTbody = document.getElementById('liabilitiesTbody');
   liabilitiesTbody.innerHTML = '';
   dashboardData.Liabilities.forEach(row => {
     liabilitiesTbody.appendChild(liabilityRow(row));
   });
+  // Insurance
   const insuranceTbody = document.getElementById('insuranceTbody');
   insuranceTbody.innerHTML = '';
   dashboardData.Insurance.forEach(row => {
     insuranceTbody.appendChild(insuranceRow(row));
   });
 }
+
 function sumArr(arr, key) {
   return arr.reduce((a, b) => a + Number(b[key] || 0), 0);
 }
@@ -182,6 +201,7 @@ function insuranceRow(row) {
   return tr;
 }
 
+// --- FORM ADD/UPDATE ---
 document.getElementById('entryForm').onsubmit = function(e) {
   e.preventDefault();
   if (!currentUser) return setStatus("Sign in first");
