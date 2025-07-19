@@ -1,0 +1,311 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Personal Finance Dashboard</title>
+    <link rel="stylesheet" href="style.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/dayjs@1.11.10/dayjs.min.js"></script>
+</head>
+<body>
+    <div class="container">
+        <header class="dashboard-header">
+            <h1>Personal Finance Dashboard</h1>
+            <div class="header-actions">
+                <button id="settingsBtn" class="btn btn--outline">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="3"></circle>
+                        <path d="m12 1 1.2 3.8L17 3l-2 4.5 4.5-2L17 9.8 21 11l-3.8 1.2L19 17l-4.5-2 2 4.5L12.2 17 11 21l-1.2-3.8L6 19l2-4.5L3.5 17 7 12.2 3 11l3.8-1.2L5 6l4.5 2-2-4.5L11.8 6 12 1z"></path>
+                    </svg>
+                    Settings
+                </button>
+                <button id="addBtn" class="btn btn--primary">+ Add Item</button>
+                <button id="exportBtn" class="btn btn--secondary">Export Data</button>
+                <button id="helpBtn" class="btn btn--outline">?</button>
+            </div>
+        </header>
+
+        <div id="loadingIndicator" class="loading-indicator hidden">
+            <div class="loading-spinner"></div>
+            <p>Loading data from Google Sheets...</p>
+        </div>
+
+        <main class="dashboard-content">
+            <!-- Summary Cards -->
+            <section class="summary-section">
+                <div class="summary-grid">
+                    <div class="card summary-card">
+                        <div class="card__body">
+                            <h3>Total Assets</h3>
+                            <div class="summary-value" id="totalAssets">$0</div>
+                            <div class="summary-change positive" id="assetsChange">+0%</div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card__body">
+                            <h3>Total Liabilities</h3>
+                            <div class="summary-value" id="totalLiabilities">$0</div>
+                            <div class="summary-change negative" id="liabilitiesChange">+0%</div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card__body">
+                            <h3>Net Worth</h3>
+                            <div class="summary-value" id="netWorth">$0</div>
+                            <div class="summary-change positive" id="netWorthChange">+0%</div>
+                        </div>
+                    </div>
+                    <div class="card summary-card">
+                        <div class="card__body">
+                            <h3>Insurance Coverage</h3>
+                            <div class="summary-value" id="insuranceCoverage">$0</div>
+                            <div class="summary-change" id="insuranceChange">Active</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Allocation Chart -->
+            <section class="chart-section">
+                <div class="card">
+                    <div class="card__body">
+                        <h3>Asset Allocation</h3>
+                        <div class="chart-container">
+                            <canvas id="allocationChart" width="400" height="200"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- Data Tables -->
+            <section class="tables-section">
+                <div class="table-tabs">
+                    <button class="tab-button active" data-tab="bank">Bank Accounts</button>
+                    <button class="tab-button" data-tab="investments">Investments</button>
+                    <button class="tab-button" data-tab="properties">Properties</button>
+                    <button class="tab-button" data-tab="other">Other Assets</button>
+                    <button class="tab-button" data-tab="liabilities">Liabilities</button>
+                    <button class="tab-button" data-tab="insurance">Insurance</button>
+                </div>
+
+                <div class="tab-content">
+                    <div id="bankTab" class="tab-pane active">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="table-container">
+                                    <table id="bankTable" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Institution</th>
+                                                <th>Account Type</th>
+                                                <th>Balance</th>
+                                                <th>Interest Rate</th>
+                                                <th>Last Updated</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="investmentsTab" class="tab-pane">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="table-container">
+                                    <table id="investmentsTable" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Asset</th>
+                                                <th>Type</th>
+                                                <th>Value</th>
+                                                <th>Quantity</th>
+                                                <th>Performance</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="propertiesTab" class="tab-pane">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="table-container">
+                                    <table id="propertiesTable" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Property</th>
+                                                <th>Type</th>
+                                                <th>Value</th>
+                                                <th>Location</th>
+                                                <th>Status</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="otherTab" class="tab-pane">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="table-container">
+                                    <table id="otherTable" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Asset</th>
+                                                <th>Type</th>
+                                                <th>Value</th>
+                                                <th>Description</th>
+                                                <th>Date Acquired</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="liabilitiesTab" class="tab-pane">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="table-container">
+                                    <table id="liabilitiesTable" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Liability</th>
+                                                <th>Type</th>
+                                                <th>Amount</th>
+                                                <th>Interest Rate</th>
+                                                <th>Due Date</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="insuranceTab" class="tab-pane">
+                        <div class="card">
+                            <div class="card__body">
+                                <div class="table-container">
+                                    <table id="insuranceTable" class="data-table">
+                                        <thead>
+                                            <tr>
+                                                <th>Policy</th>
+                                                <th>Type</th>
+                                                <th>Coverage</th>
+                                                <th>Premium</th>
+                                                <th>Expiry</th>
+                                            </tr>
+                                        </thead>
+                                        <tbody></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+        </main>
+    </div>
+
+    <!-- Settings Modal -->
+    <div id="settingsModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('settingsModal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Settings</h3>
+                <button onclick="closeModal('settingsModal')" class="btn btn--outline btn--sm">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Google Sheet ID</label>
+                    <input type="text" id="sheetIdInput" class="form-control" placeholder="Enter your Google Sheet ID">
+                    <small class="form-text">Get this from your Google Sheet URL</small>
+                </div>
+                <div class="form-group">
+                    <label class="form-label">Write Endpoint URL (Optional)</label>
+                    <input type="text" id="writeEndpointInput" class="form-control" placeholder="Apps Script Web App URL for writing data">
+                    <small class="form-text">Leave empty for read-only mode</small>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="reloadData()" class="btn btn--primary">Reload Data</button>
+                <button onclick="closeModal('settingsModal')" class="btn btn--secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Item Modal -->
+    <div id="addModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('addModal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Item</h3>
+                <button onclick="closeModal('addModal')" class="btn btn--outline btn--sm">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="form-group">
+                    <label class="form-label">Category</label>
+                    <select id="categorySelect" class="form-control" onchange="updateAddForm()">
+                        <option value="bank">Bank Account</option>
+                        <option value="investments">Investment</option>
+                        <option value="properties">Property</option>
+                        <option value="other">Other Asset</option>
+                        <option value="liabilities">Liability</option>
+                        <option value="insurance">Insurance</option>
+                    </select>
+                </div>
+                <div id="addFormFields"></div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="addItem()" class="btn btn--primary">Add Item</button>
+                <button onclick="closeModal('addModal')" class="btn btn--secondary">Cancel</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Help Modal -->
+    <div id="helpModal" class="modal hidden">
+        <div class="modal-backdrop" onclick="closeModal('helpModal')"></div>
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Google Sheets Setup</h3>
+                <button onclick="closeModal('helpModal')" class="btn btn--outline btn--sm">✕</button>
+            </div>
+            <div class="modal-body">
+                <div class="help-content">
+                    <h4>How to set up your Google Sheet:</h4>
+                    <ol>
+                        <li>Create a new Google Sheet or use an existing one</li>
+                        <li>Create these exact tab names: <code>Bank</code>, <code>Investments</code>, <code>Properties</code>, <code>OtherAssets</code>, <code>Liabilities</code>, <code>Insurance</code></li>
+                        <li>Go to <strong>File → Share → Publish to web</strong></li>
+                        <li>Choose "Entire Document" and "Web page", then click "Publish"</li>
+                        <li>Copy the Sheet ID from your URL (between /d/ and /edit)</li>
+                        <li>Paste it in Settings → Google Sheet ID</li>
+                        <li>Click "Reload Data" to fetch your data</li>
+                    </ol>
+                    <h4>Optional: Writing data back to sheets</h4>
+                    <p>To enable adding data directly to your sheets, you'll need to create a Google Apps Script web app that accepts POST requests and writes to your sheet.</p>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button onclick="closeModal('helpModal')" class="btn btn--primary">Got it</button>
+            </div>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
