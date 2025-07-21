@@ -483,87 +483,36 @@ function createInsuranceRow(row) {
 }
 
 // --- Form Handling ---
-const entryForm = document.getElementById('entryForm');
-if (entryForm) {
-  entryForm.onsubmit = function(e) {
+// --- Bank Form Handling ---
+const bankForm = document.getElementById('bankForm');
+if (bankForm) {
+  bankForm.onsubmit = function(e) {
     e.preventDefault();
     if (!currentUser) return setStatus("Sign in first");
 
-    const type = document.getElementById('entryType').value;
-    const name = document.getElementById('inputName').value.trim();
-    const institution = document.getElementById('inputInstitution').value.trim();
-    const value = parseFloat(document.getElementById('inputValue').value) || 0;
-    const currency = document.getElementById('inputCurrency').value.trim() || 'USD';
-    const details = document.getElementById('inputDetails').value.trim();
-    const date = document.getElementById('inputDate').value;
+    const name = document.getElementById('bankName').value.trim();
+    const value = parseFloat(document.getElementById('bankBalance').value) || 0;
+    const currency = document.getElementById('bankCurrency').value.trim() || 'USD';
 
-    if (!name) return setStatus("Name is required");
+    if (!name) return setStatus("Bank name is required");
 
-    // Build entry object
     let entry = { name, value, currency };
 
-    if (type === 'Bank' || type === 'Investment' || type === 'Property' || type === 'OtherAsset') {
-      entry.institution = institution;
-      if (details) entry.details = details;
-    }
-
-    if (type === 'Liability') {
-      entry.institution = institution;
-      entry.date = date;
-      if (details) entry.details = details;
-    }
-
-    if (type === 'Insurance') {
-      entry.provider = institution;
-      entry.details = details;
-      entry.date = date;
-    }
-
-    // Map type to data structure key
-    let structKey = '';
-    switch(type) {
-      case 'Bank': structKey = 'Bank'; break;
-      case 'Investment': structKey = 'Investments'; break;
-      case 'Property': structKey = 'Properties'; break;
-      case 'OtherAsset': structKey = 'OtherAssets'; break;
-      case 'Liability': structKey = 'Liabilities'; break;
-      case 'Insurance': structKey = 'Insurance'; break;
-    }
-
-    if (type === 'Bank') {
-      // Only update the matching entry, otherwise append
-      let found = false;
-      for (let i = 0; i < dashboardData.Bank.length; i++) {
-        if (dashboardData.Bank[i].name === name) {
-          dashboardData.Bank[i] = entry;
-          found = true;
-          break;
-        }
+    // Update or append
+    let found = false;
+    for (let i = 0; i < dashboardData.Bank.length; i++) {
+      if (dashboardData.Bank[i].name === name) {
+        dashboardData.Bank[i] = entry;
+        found = true;
+        break;
       }
-      if (!found) {
-        dashboardData.Bank.push(entry);
-      }
-      setStatus(`${found ? 'Updated' : 'Added'} Bank: ${name}`);
-    } else {
-      // For other types, keep previous logic
-      let updated = false;
-      dashboardData[structKey] = dashboardData[structKey].map(row => {
-        if (row.name === name) {
-          updated = true;
-          return entry;
-        }
-        return row;
-      });
-      if (!updated) {
-        dashboardData[structKey].push(entry);
-      }
-      setStatus(`${updated ? 'Updated' : 'Added'} ${type}: ${name}`);
     }
+    if (!found) {
+      dashboardData.Bank.push(entry);
+    }
+    setStatus(`${found ? 'Updated' : 'Added'} Bank: ${name}`);
 
-    // Clear form
-    entryForm.reset();
-
-    // Update display
+    bankForm.reset();
     redrawDashboard();
   };
 }
