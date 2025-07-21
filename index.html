@@ -213,31 +213,18 @@
       <!-- Add/Update Form Section -->
       <section id="forms">
         <div class="form-container">
-          <h2>Add New Financial Entry</h2>
-          <div class="form-wrapper">
-            <select id="entryType" class="form-select">
-              <option>Bank</option>
-              <option>Investment</option>
-              <option>Property</option>
-              <option>OtherAsset</option>
-              <option>Liability</option>
-              <option>Insurance</option>
-            </select>
-            <form id="entryForm">
-              <div class="form-grid">
-                <input required type="text" id="inputName" placeholder="Name/Account/Policy" class="form-input">
-                <input required type="text" id="inputInstitution" placeholder="Institution/Provider" class="form-input">
-                <input required type="number" step="0.01" id="inputValue" placeholder="Value/Balance/Coverage" class="form-input">
-                <input required type="text" id="inputCurrency" placeholder="Currency (e.g. USD)" class="form-input">
-                <input type="text" id="inputDetails" placeholder="Other Details" class="form-input">
-                <input type="date" id="inputDate" placeholder="Date/Due/Expiry" class="form-input">
-              </div>
-              <div class="form-actions">
-                <button type="submit" class="btn-primary">Add/Update Entry</button>
-                <button id="saveBtn" type="button" class="btn-save">💾 Save to Cloud</button>
-              </div>
-            </form>
-          </div>
+          <h2>Add New Bank</h2>
+          <form id="bankForm">
+            <div class="form-grid">
+              <input required type="text" id="bankName" placeholder="Bank Name" class="form-input">
+              <input required type="number" step="0.01" id="bankBalance" placeholder="Balance" class="form-input">
+              <input required type="text" id="bankCurrency" placeholder="Currency (e.g. USD)" class="form-input" value="USD">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Add/Update Bank</button>
+              <button id="saveBtn" type="button" class="btn-save">4be Save to Cloud</button>
+            </div>
+          </form>
         </div>
       </section>
     </main>
