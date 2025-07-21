@@ -77,10 +77,6 @@
           <p id="totalAssets">$0</p>
         </div>
         <div class="card">
-          <h3>Total Liabilities</h3>
-          <p id="totalLiabilities">$0</p>
-        </div>
-        <div class="card">
           <h3>Total Insurance</h3>
           <p id="totalInsurance">$0</p>
         </div>
@@ -88,20 +84,6 @@
 
       <!-- Financial Breakdown Section -->
       <section class="financial-breakdown">
-        <div class="card income-sources">
-          <h3>Income Sources</h3>
-          <div id="incomeSourcesList">
-            <!-- Populated by JavaScript -->
-          </div>
-        </div>
-        
-        <div class="card spending-categories">
-          <h3>Spending Categories</h3>
-          <div class="chart-container">
-            <canvas id="spendingChart" width="300" height="300"></canvas>
-          </div>
-        </div>
-        
         <div class="card asset-allocation">
           <h3>Asset Allocation</h3>
           <div class="chart-container">
@@ -111,51 +93,9 @@
       </section>
 
       <!-- Goal Progress Section -->
-      <section class="goal-section">
-        <div class="card goal-progress">
-          <h3>Monthly Income Goal</h3>
-          <div class="progress-info">
-            <span id="goalProgress">61%</span>
-            <span>Income Goal Progress</span>
-            <span id="goalDetails">$24,050 / $39,276</span>
-          </div>
-          <div class="progress-bar">
-            <div class="progress-fill" id="progressFill" style="width: 61%;"></div>
-          </div>
-        </div>
-        
-        <div class="card notifications">
-          <h3>🔔 Notifications</h3>
-          <div class="notification-item">
-            <span class="notification-text">3 Bills are past Due, Pay soon to avoid late fees.</span>
-          </div>
-        </div>
-      </section>
+      <!-- Removed Monthly Income Goal and Notifications -->
 
       <!-- Pet Expenses Example -->
-      <section class="custom-section">
-        <div class="card pets-expenses">
-          <h3>🐕 Expenses for My Dogs and Cats</h3>
-          <div id="petExpensesList">
-            <div class="pet-expense-item">
-              <span class="expense-name">Routine Vet</span>
-              <span class="expense-amount">140</span>
-            </div>
-            <div class="pet-expense-item">
-              <span class="expense-name">Food</span>
-              <span class="expense-amount">950</span>
-            </div>
-            <div class="pet-expense-item">
-              <span class="expense-name">Food Treats</span>
-              <span class="expense-amount">231</span>
-            </div>
-            <div class="pet-expense-item">
-              <span class="expense-name">Kennel Boarding</span>
-              <span class="expense-amount">65</span>
-            </div>
-          </div>
-        </div>
-      </section>
 
       <!-- Data Tables Section -->
       <section id="dataTables">
@@ -176,21 +116,7 @@
           </table>
         </div>
 
-        <div class="table-container">
-          <h2>Liabilities Overview</h2>
-          <table id="liabilitiesTable">
-            <thead>
-              <tr>
-                <th>Name</th>
-                <th>Institution</th>
-                <th>Amount</th>
-                <th>Currency</th>
-                <th>Due Date</th>
-              </tr>
-            </thead>
-            <tbody id="liabilitiesTbody"></tbody>
-          </table>
-        </div>
+        <!-- Removed Liabilities Overview table -->
 
         <div class="table-container">
           <h2>Insurance Policies</h2>
@@ -223,6 +149,20 @@
             <div class="form-actions">
               <button type="submit" class="btn-primary">Add/Update Bank</button>
               <button id="saveBtn" type="button" class="btn-save">4be Save to Cloud</button>
+            </div>
+          </form>
+        </div>
+        <div class="form-container">
+          <h2>Add New Insurance</h2>
+          <form id="insuranceForm">
+            <div class="form-grid">
+              <input required type="text" id="insuranceCompany" placeholder="Insurance Company" class="form-input">
+              <input required type="number" step="0.01" id="insuranceValue" placeholder="Maturity Value" class="form-input">
+              <input required type="date" id="insuranceDate" placeholder="Maturity Date" class="form-input">
+              <input required type="number" step="0.01" id="insurancePremium" placeholder="Yearly Premium" class="form-input">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Add/Update Insurance</button>
             </div>
           </form>
         </div>
