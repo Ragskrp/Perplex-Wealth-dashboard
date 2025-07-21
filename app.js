@@ -44,8 +44,8 @@ let dashboardData = {
   Investments: [], 
   Properties: [], 
   OtherAssets: [],
-  Liabilities: [], 
-  Insurance: []
+  Insurance: [],
+  LandAssets: []
 };
 
 function setStatus(msg) { 
@@ -367,6 +367,17 @@ function updateDataTables() {
       insuranceTbody.appendChild(createInsuranceRow(row));
     });
   }
+  // Land Assets table
+  let landTable = document.getElementById('landAssetsTable');
+  if (landTable) {
+    let tbody = landTable.querySelector('tbody');
+    if (tbody) {
+      tbody.innerHTML = '';
+      dashboardData.LandAssets.forEach((row, idx) => {
+        tbody.appendChild(createLandAssetRow(row, idx));
+      });
+    }
+  }
 }
 
 function updateCharts() {
@@ -412,6 +423,17 @@ function createInsuranceRow(row) {
     <td>${row.currency || 'USD'}</td>
     <td>${row.details || ''}</td>
     <td>${row.date || ''}</td>
+  `;
+  return tr;
+}
+
+function createLandAssetRow(row, idx) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="location">${row.location}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="size">${row.size}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="gps">${row.gps}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="registeredTo">${row.registeredTo}</span></td>
   `;
   return tr;
 }
@@ -490,11 +512,53 @@ if (bankForm) {
     redrawDashboard();
   };
 }
+// --- Land Asset Form Handling ---
+const landForm = document.getElementById('landForm');
+if (landForm) {
+  landForm.onsubmit = function(e) {
+    e.preventDefault();
+    if (!currentUser) return setStatus("Sign in first");
+
+    const location = document.getElementById('landLocation').value.trim();
+    const size = document.getElementById('landSize').value.trim();
+    const gps = document.getElementById('landGPS').value.trim();
+    const registeredTo = document.getElementById('landRegisteredTo').value.trim();
+
+    if (!location) return setStatus("Land location is required");
+    if (!size) return setStatus("Land size is required");
+    if (!gps) return setStatus("GPS coordinates are required");
+    if (!registeredTo) return setStatus("Registered To is required");
+
+    let entry = { location, size, gps, registeredTo };
+
+    // Update or append
+    let found = false;
+    for (let i = 0; i < dashboardData.LandAssets.length; i++) {
+      if (dashboardData.LandAssets[i].location === location && dashboardData.LandAssets[i].gps === gps) {
+        dashboardData.LandAssets[i] = entry;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      dashboardData.LandAssets.push(entry);
+    }
+    setStatus(`${found ? 'Updated' : 'Added'} Land Asset: ${location}`);
+
+    landForm.reset();
+    redrawDashboard();
+  };
+}
 
 // --- Save Button ---
 const saveBtn = document.getElementById('saveBtn');
 if (saveBtn) {
   saveBtn.onclick = saveDashboard;
+}
+
+const saveBtnFooter = document.getElementById('saveBtnFooter');
+if (saveBtnFooter) {
+  saveBtnFooter.onclick = saveDashboard;
 }
 
 // --- Initialize Charts when DOM is ready ---
@@ -514,4 +578,40 @@ document.addEventListener('DOMContentLoaded', function() {
 window.addEventListener('load', function() {
   // Ensure auth state is properly handled on page load
   updateAuthUI(null); // Start with auth view
+});
+
+// --- Inline Editing Handler ---
+document.addEventListener('click', function(e) {
+  if (e.target.classList.contains('editable')) {
+    const span = e.target;
+    const type = span.getAttribute('data-type');
+    const idx = parseInt(span.getAttribute('data-idx'));
+    const field = span.getAttribute('data-field');
+    const oldValue = span.textContent;
+    const input = document.createElement('input');
+    input.type = 'text';
+    input.value = oldValue;
+    input.className = 'inline-edit-input';
+    span.replaceWith(input);
+    input.focus();
+    input.onblur = function() {
+      const newValue = input.value.trim();
+      if (newValue !== oldValue && newValue !== '') {
+        if (type === 'land') {
+          dashboardData.LandAssets[idx][field] = newValue;
+        }
+        setStatus('Value updated. Click Save to Cloud to sync.');
+        redrawDashboard();
+      } else {
+        input.replaceWith(span);
+      }
+    };
+    input.onkeydown = function(ev) {
+      if (ev.key === 'Enter') {
+        input.blur();
+      } else if (ev.key === 'Escape') {
+        input.replaceWith(span);
+      }
+    };
+  }
 });
