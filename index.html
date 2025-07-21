@@ -115,9 +115,7 @@
             <tbody id="assetsTbody"></tbody>
           </table>
         </div>
-
         <!-- Removed Liabilities Overview table -->
-
         <div class="table-container">
           <h2>Insurance Policies</h2>
           <table id="insuranceTable">
@@ -134,6 +132,20 @@
             <tbody id="insuranceTbody"></tbody>
           </table>
         </div>
+        <div class="table-container">
+          <h2>Land Assets</h2>
+          <table id="landAssetsTable">
+            <thead>
+              <tr>
+                <th>Location</th>
+                <th>Size</th>
+                <th>GPS Coordinates</th>
+                <th>Registered To</th>
+              </tr>
+            </thead>
+            <tbody></tbody>
+          </table>
+        </div>
       </section>
 
       <!-- Add/Update Form Section -->
@@ -148,7 +160,6 @@
             </div>
             <div class="form-actions">
               <button type="submit" class="btn-primary">Add/Update Bank</button>
-              <button id="saveBtn" type="button" class="btn-save">4be Save to Cloud</button>
             </div>
           </form>
         </div>
@@ -166,12 +177,29 @@
             </div>
           </form>
         </div>
+        <div class="form-container">
+          <h2>Add Land Asset</h2>
+          <form id="landForm">
+            <div class="form-grid">
+              <input required type="text" id="landLocation" placeholder="Land Location" class="form-input">
+              <input required type="text" id="landSize" placeholder="Size (e.g. acres, sq ft)" class="form-input">
+              <input required type="text" id="landGPS" placeholder="GPS Coordinates" class="form-input">
+              <input required type="text" id="landRegisteredTo" placeholder="Registered To" class="form-input">
+            </div>
+            <div class="form-actions">
+              <button type="submit" class="btn-primary">Add/Update Land Asset</button>
+            </div>
+          </form>
+        </div>
       </section>
     </main>
 
     <footer>
       <div class="status-bar">
         <span id="status">Ready</span>
+      </div>
+      <div style="text-align:center; margin-top:20px;">
+        <button id="saveBtnFooter" type="button" style="background-color:#ef4444;color:#fff;padding:12px 32px;border:none;border-radius:6px;font-size:1.1em;cursor:pointer;">Save to Cloud</button>
       </div>
     </footer>
   </div>
