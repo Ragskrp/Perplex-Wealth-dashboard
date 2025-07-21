@@ -488,7 +488,7 @@ if (entryForm) {
   entryForm.onsubmit = function(e) {
     e.preventDefault();
     if (!currentUser) return setStatus("Sign in first");
-    
+
     const type = document.getElementById('entryType').value;
     const name = document.getElementById('inputName').value.trim();
     const institution = document.getElementById('inputInstitution').value.trim();
@@ -496,29 +496,29 @@ if (entryForm) {
     const currency = document.getElementById('inputCurrency').value.trim() || 'USD';
     const details = document.getElementById('inputDetails').value.trim();
     const date = document.getElementById('inputDate').value;
-    
+
     if (!name) return setStatus("Name is required");
-    
+
     // Build entry object
     let entry = { name, value, currency };
-    
+
     if (type === 'Bank' || type === 'Investment' || type === 'Property' || type === 'OtherAsset') {
       entry.institution = institution;
       if (details) entry.details = details;
     }
-    
+
     if (type === 'Liability') {
       entry.institution = institution;
       entry.date = date;
       if (details) entry.details = details;
     }
-    
+
     if (type === 'Insurance') {
       entry.provider = institution;
       entry.details = details;
       entry.date = date;
     }
-    
+
     // Map type to data structure key
     let structKey = '';
     switch(type) {
@@ -529,19 +529,24 @@ if (entryForm) {
       case 'Liability': structKey = 'Liabilities'; break;
       case 'Insurance': structKey = 'Insurance'; break;
     }
-    
-    let updated = false;
+
     if (type === 'Bank') {
-      // For Bank, check if entry with same name exists, update if found, else append
-      const idx = dashboardData.Bank.findIndex(row => row.name === name);
-      if (idx !== -1) {
-        dashboardData.Bank[idx] = entry;
-        updated = true;
-      } else {
+      // Only update the matching entry, otherwise append
+      let found = false;
+      for (let i = 0; i < dashboardData.Bank.length; i++) {
+        if (dashboardData.Bank[i].name === name) {
+          dashboardData.Bank[i] = entry;
+          found = true;
+          break;
+        }
+      }
+      if (!found) {
         dashboardData.Bank.push(entry);
       }
+      setStatus(`${found ? 'Updated' : 'Added'} Bank: ${name}`);
     } else {
       // For other types, keep previous logic
+      let updated = false;
       dashboardData[structKey] = dashboardData[structKey].map(row => {
         if (row.name === name) {
           updated = true;
@@ -552,14 +557,14 @@ if (entryForm) {
       if (!updated) {
         dashboardData[structKey].push(entry);
       }
+      setStatus(`${updated ? 'Updated' : 'Added'} ${type}: ${name}`);
     }
-    
+
     // Clear form
     entryForm.reset();
-    
+
     // Update display
     redrawDashboard();
-    setStatus(`${updated ? 'Updated' : 'Added'} ${type}: ${name}`);
   };
 }
 
