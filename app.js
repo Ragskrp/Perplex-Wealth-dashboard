@@ -327,10 +327,8 @@ function updateAssetChart() {
 // --- Dashboard Rendering ---
 function redrawDashboard() {
   updateSummaryCards();
-  updateIncomeSourcesList();
   updateDataTables();
   updateCharts();
-  updateGoalProgress();
 }
 
 function updateSummaryCards() {
@@ -338,43 +336,16 @@ function updateSummaryCards() {
   const investmentsTotal = sumArr(dashboardData.Investments, 'value');
   const propertiesTotal = sumArr(dashboardData.Properties, 'value');
   const otherAssetsTotal = sumArr(dashboardData.OtherAssets, 'value');
-  const liabilitiesTotal = sumArr(dashboardData.Liabilities, 'value');
   const insuranceTotal = sumArr(dashboardData.Insurance, 'value');
   
   const totalAssets = bankTotal + investmentsTotal + propertiesTotal + otherAssetsTotal;
-  const netWorth = totalAssets + insuranceTotal - liabilitiesTotal;
+  const netWorth = totalAssets + insuranceTotal;
   
   // Update summary card values
   updateElement('availableBalance', fmtMoney(bankTotal));
   updateElement('netWorth', fmtMoney(netWorth));
   updateElement('totalAssets', fmtMoney(totalAssets));
-  updateElement('totalLiabilities', fmtMoney(liabilitiesTotal));
   updateElement('totalInsurance', fmtMoney(insuranceTotal));
-}
-
-function updateIncomeSourcesList() {
-  const container = document.getElementById('incomeSourcesList');
-  if (!container) return;
-  
-  container.innerHTML = '';
-  
-  // Sample income sources (you can modify this to use real data)
-  const incomeSources = [
-    { name: 'Salary', amount: 13000 },
-    { name: 'My Shop', amount: 8000 },
-    { name: 'E-commerce', amount: 2100 },
-    { name: 'Google Adsense', amount: 950 }
-  ];
-  
-  incomeSources.forEach(source => {
-    const item = document.createElement('div');
-    item.className = 'income-source-item';
-    item.innerHTML = `
-      <span class="income-source-name">${source.name}</span>
-      <span class="income-source-amount">${fmtMoney(source.amount)}</span>
-    `;
-    container.appendChild(item);
-  });
 }
 
 function updateDataTables() {
@@ -388,16 +359,6 @@ function updateDataTables() {
       });
     });
   }
-  
-  // Liabilities table
-  const liabilitiesTbody = document.getElementById('liabilitiesTbody');
-  if (liabilitiesTbody) {
-    liabilitiesTbody.innerHTML = '';
-    dashboardData.Liabilities.forEach(row => {
-      liabilitiesTbody.appendChild(createLiabilityRow(row));
-    });
-  }
-  
   // Insurance table
   const insuranceTbody = document.getElementById('insuranceTbody');
   if (insuranceTbody) {
@@ -409,22 +370,7 @@ function updateDataTables() {
 }
 
 function updateCharts() {
-  updateSpendingChart();
   updateAssetChart();
-}
-
-function updateGoalProgress() {
-  const totalIncome = 24050; // You can calculate this from real data
-  const goalAmount = 39276;
-  const progress = Math.round((totalIncome / goalAmount) * 100);
-  
-  updateElement('goalProgress', progress + '%');
-  updateElement('goalDetails', `${fmtMoney(totalIncome)} / ${fmtMoney(goalAmount)}`);
-  
-  const progressFill = document.getElementById('progressFill');
-  if (progressFill) {
-    progressFill.style.width = progress + '%';
-  }
 }
 
 // --- Utility Functions ---
@@ -457,18 +403,6 @@ function createAssetRow(type, row) {
   return tr;
 }
 
-function createLiabilityRow(row) {
-  const tr = document.createElement('tr');
-  tr.innerHTML = `
-    <td>${row.name || ''}</td>
-    <td>${row.institution || ''}</td>
-    <td>${fmtMoney(row.value || 0)}</td>
-    <td>${row.currency || 'USD'}</td>
-    <td>${row.date || ''}</td>
-  `;
-  return tr;
-}
-
 function createInsuranceRow(row) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
@@ -483,6 +417,46 @@ function createInsuranceRow(row) {
 }
 
 // --- Form Handling ---
+// --- Insurance Form Handling ---
+const insuranceForm = document.getElementById('insuranceForm');
+if (insuranceForm) {
+  insuranceForm.onsubmit = function(e) {
+    e.preventDefault();
+    if (!currentUser) return setStatus("Sign in first");
+
+    const company = document.getElementById('insuranceCompany').value.trim();
+    const value = parseFloat(document.getElementById('insuranceValue').value) || 0;
+    const date = document.getElementById('insuranceDate').value;
+    const premium = parseFloat(document.getElementById('insurancePremium').value) || 0;
+
+    if (!company) return setStatus("Insurance company is required");
+    if (!date) return setStatus("Maturity date is required");
+
+    let entry = {
+      name: company,
+      value: value,
+      date: date,
+      premium: premium
+    };
+
+    // Update or append
+    let found = false;
+    for (let i = 0; i < dashboardData.Insurance.length; i++) {
+      if (dashboardData.Insurance[i].name === company) {
+        dashboardData.Insurance[i] = entry;
+        found = true;
+        break;
+      }
+    }
+    if (!found) {
+      dashboardData.Insurance.push(entry);
+    }
+    setStatus(`${found ? 'Updated' : 'Added'} Insurance: ${company}`);
+
+    insuranceForm.reset();
+    redrawDashboard();
+  };
+}
 // --- Bank Form Handling ---
 const bankForm = document.getElementById('bankForm');
 if (bankForm) {
