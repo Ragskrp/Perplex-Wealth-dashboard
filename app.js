@@ -530,18 +530,28 @@ if (entryForm) {
       case 'Insurance': structKey = 'Insurance'; break;
     }
     
-    // Check if entry with same name exists (update vs add)
     let updated = false;
-    dashboardData[structKey] = dashboardData[structKey].map(row => {
-      if (row.name === name) {
+    if (type === 'Bank') {
+      // For Bank, check if entry with same name exists, update if found, else append
+      const idx = dashboardData.Bank.findIndex(row => row.name === name);
+      if (idx !== -1) {
+        dashboardData.Bank[idx] = entry;
         updated = true;
-        return entry;
+      } else {
+        dashboardData.Bank.push(entry);
       }
-      return row;
-    });
-    
-    if (!updated) {
-      dashboardData[structKey].push(entry);
+    } else {
+      // For other types, keep previous logic
+      dashboardData[structKey] = dashboardData[structKey].map(row => {
+        if (row.name === name) {
+          updated = true;
+          return entry;
+        }
+        return row;
+      });
+      if (!updated) {
+        dashboardData[structKey].push(entry);
+      }
     }
     
     // Clear form
