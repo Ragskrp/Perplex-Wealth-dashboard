@@ -332,31 +332,28 @@ function redrawDashboard() {
 }
 
 function updateSummaryCards() {
+  // Calculate new summary values
   const bankTotal = sumArr(dashboardData.Bank, 'value');
-  const investmentsTotal = sumArr(dashboardData.Investments, 'value');
-  const propertiesTotal = sumArr(dashboardData.Properties, 'value');
-  const otherAssetsTotal = sumArr(dashboardData.OtherAssets, 'value');
-  const insuranceTotal = sumArr(dashboardData.Insurance, 'value');
-  
-  const totalAssets = bankTotal + investmentsTotal + propertiesTotal + otherAssetsTotal;
-  const netWorth = totalAssets + insuranceTotal;
-  
-  // Update summary card values
-  updateElement('availableBalance', fmtMoney(bankTotal));
-  updateElement('netWorth', fmtMoney(netWorth));
-  updateElement('totalAssets', fmtMoney(totalAssets));
-  updateElement('totalInsurance', fmtMoney(insuranceTotal));
+  // Insurance Maturity Value: sum of 'value' field in Insurance
+  const insuranceMaturityTotal = sumArr(dashboardData.Insurance, 'value');
+  // Funds Worth: sum of all asset types (Bank, Investments, Properties, OtherAssets)
+  const fundsWorth = bankTotal
+    + sumArr(dashboardData.Investments, 'value')
+    + sumArr(dashboardData.Properties, 'value')
+    + sumArr(dashboardData.OtherAssets, 'value');
+
+  updateElement('totalBankBalance', fmtMoney(bankTotal));
+  updateElement('totalInsuranceMaturity', fmtMoney(insuranceMaturityTotal));
+  updateElement('totalFundsWorth', fmtMoney(fundsWorth));
 }
 
 function updateDataTables() {
-  // Assets table
+  // Banks Overview table (only Bank rows)
   const assetsTbody = document.getElementById('assetsTbody');
   if (assetsTbody) {
     assetsTbody.innerHTML = '';
-    ['Bank', 'Investments', 'Properties', 'OtherAssets'].forEach(type => {
-      dashboardData[type].forEach((row, idx) => {
-        assetsTbody.appendChild(createAssetRow(type, row, idx));
-      });
+    dashboardData.Bank.forEach((row, idx) => {
+      assetsTbody.appendChild(createBankOverviewRow(row, idx));
     });
   }
   // Insurance table
@@ -395,33 +392,22 @@ function sumArr(arr, key) {
 }
 
 function fmtMoney(amount) {
-  return '$' + Number(amount).toLocaleString(undefined, {
+  return '₹' + Number(amount).toLocaleString(undefined, {
     minimumFractionDigits: 2,
     maximumFractionDigits: 2
   });
 }
 
 function createAssetRow(type, row, idx) {
-  if (type === 'Bank') {
-    return createBankRow(row, idx);
-  }
-  if (type === 'Investments') {
-    return createInvestmentRow(row, idx);
-  }
-  if (type === 'Properties') {
-    return createPropertyRow(row, idx);
-  }
-  if (type === 'OtherAssets') {
-    return createOtherAssetRow(row, idx);
-  }
+  // Deprecated: replaced by createBankOverviewRow for Banks Overview
+}
+
+function createBankOverviewRow(row, idx) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td>${type}</td>
-    <td>${row.name || ''}</td>
-    <td>${row.institution || row.provider || '-'}</td>
-    <td>${fmtMoney(row.value || 0)}</td>
-    <td>${row.currency || 'USD'}</td>
-    <td>${row.details || ''}</td>
+    <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
+    <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
+    <td>INR</td>
   `;
   return tr;
 }
@@ -484,7 +470,6 @@ function createInsuranceRow(row, idx) {
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="provider">${row.provider || ''}</span></td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
-    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="currency">${row.currency || 'USD'}</span></td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="premium">${row.premium || ''}</span></td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="date">${row.date || ''}</span></td>
   `;
@@ -540,12 +525,17 @@ if (bankForm) {
     if (!currentUser) return setStatus("Sign in first");
 
     const name = document.getElementById('bankName').value.trim();
-    const value = parseFloat(document.getElementById('bankBalance').value) || 0;
-    const currency = document.getElementById('bankCurrency').value.trim() || 'USD';
+    let value = parseFloat(document.getElementById('bankBalance').value) || 0;
+    const currency = document.getElementById('bankCurrency').value;
 
     if (!name) return setStatus("Bank name is required");
 
-    let entry = { name, value, currency };
+    // Convert GBP to INR if needed
+    if (currency === 'GBP') {
+      value = value * 100;
+    }
+
+    let entry = { name, value, currency: 'INR' };
 
     // Update or append
     let found = false;
