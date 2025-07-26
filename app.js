@@ -352,7 +352,8 @@ function updateDataTables() {
   const assetsTbody = document.getElementById('assetsTbody');
   if (assetsTbody) {
     assetsTbody.innerHTML = '';
-    dashboardData.Bank.forEach((row, idx) => {
+    const bankArr = Array.isArray(dashboardData.Bank) ? dashboardData.Bank : [];
+    bankArr.forEach((row, idx) => {
       assetsTbody.appendChild(createBankOverviewRow(row, idx));
     });
   }
@@ -360,7 +361,8 @@ function updateDataTables() {
   const insuranceTbody = document.getElementById('insuranceTbody');
   if (insuranceTbody) {
     insuranceTbody.innerHTML = '';
-    dashboardData.Insurance.forEach((row, idx) => {
+    const insuranceArr = Array.isArray(dashboardData.Insurance) ? dashboardData.Insurance : [];
+    insuranceArr.forEach((row, idx) => {
       insuranceTbody.appendChild(createInsuranceRow(row, idx));
     });
   }
