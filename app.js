@@ -354,8 +354,8 @@ function updateDataTables() {
   if (assetsTbody) {
     assetsTbody.innerHTML = '';
     ['Bank', 'Investments', 'Properties', 'OtherAssets'].forEach(type => {
-      dashboardData[type].forEach(row => {
-        assetsTbody.appendChild(createAssetRow(type, row));
+      dashboardData[type].forEach((row, idx) => {
+        assetsTbody.appendChild(createAssetRow(type, row, idx));
       });
     });
   }
@@ -363,8 +363,8 @@ function updateDataTables() {
   const insuranceTbody = document.getElementById('insuranceTbody');
   if (insuranceTbody) {
     insuranceTbody.innerHTML = '';
-    dashboardData.Insurance.forEach(row => {
-      insuranceTbody.appendChild(createInsuranceRow(row));
+    dashboardData.Insurance.forEach((row, idx) => {
+      insuranceTbody.appendChild(createInsuranceRow(row, idx));
     });
   }
   // Land Assets table
@@ -401,7 +401,19 @@ function fmtMoney(amount) {
   });
 }
 
-function createAssetRow(type, row) {
+function createAssetRow(type, row, idx) {
+  if (type === 'Bank') {
+    return createBankRow(row, idx);
+  }
+  if (type === 'Investments') {
+    return createInvestmentRow(row, idx);
+  }
+  if (type === 'Properties') {
+    return createPropertyRow(row, idx);
+  }
+  if (type === 'OtherAssets') {
+    return createOtherAssetRow(row, idx);
+  }
   const tr = document.createElement('tr');
   tr.innerHTML = `
     <td>${type}</td>
@@ -414,26 +426,67 @@ function createAssetRow(type, row) {
   return tr;
 }
 
-function createInsuranceRow(row) {
+function createBankRow(row, idx) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td>${row.name || ''}</td>
-    <td>${row.provider || ''}</td>
-    <td>${fmtMoney(row.value || 0)}</td>
-    <td>${row.currency || 'USD'}</td>
+    <td>Bank</td>
+    <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
+    <td>${row.institution || '-'}</td>
+    <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
+    <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="currency">${row.currency || 'USD'}</span></td>
     <td>${row.details || ''}</td>
-    <td>${row.date || ''}</td>
   `;
   return tr;
 }
 
-function createLandAssetRow(row, idx) {
+function createInvestmentRow(row, idx) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
-    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="location">${row.location}</span></td>
-    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="size">${row.size}</span></td>
-    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="gps">${row.gps}</span></td>
-    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="registeredTo">${row.registeredTo}</span></td>
+    <td>Investments</td>
+    <td><span class="editable" data-type="investments" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
+    <td><span class="editable" data-type="investments" data-idx="${idx}" data-field="institution">${row.institution || '-'}</span></td>
+    <td><span class="editable" data-type="investments" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
+    <td><span class="editable" data-type="investments" data-idx="${idx}" data-field="currency">${row.currency || 'USD'}</span></td>
+    <td><span class="editable" data-type="investments" data-idx="${idx}" data-field="details">${row.details || ''}</span></td>
+  `;
+  return tr;
+}
+
+function createPropertyRow(row, idx) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>Properties</td>
+    <td><span class="editable" data-type="properties" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
+    <td><span class="editable" data-type="properties" data-idx="${idx}" data-field="institution">${row.institution || '-'}</span></td>
+    <td><span class="editable" data-type="properties" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
+    <td><span class="editable" data-type="properties" data-idx="${idx}" data-field="currency">${row.currency || 'USD'}</span></td>
+    <td><span class="editable" data-type="properties" data-idx="${idx}" data-field="details">${row.details || ''}</span></td>
+  `;
+  return tr;
+}
+
+function createOtherAssetRow(row, idx) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td>OtherAssets</td>
+    <td><span class="editable" data-type="otherassets" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
+    <td><span class="editable" data-type="otherassets" data-idx="${idx}" data-field="institution">${row.institution || '-'}</span></td>
+    <td><span class="editable" data-type="otherassets" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
+    <td><span class="editable" data-type="otherassets" data-idx="${idx}" data-field="currency">${row.currency || 'USD'}</span></td>
+    <td><span class="editable" data-type="otherassets" data-idx="${idx}" data-field="details">${row.details || ''}</span></td>
+  `;
+  return tr;
+}
+
+function createInsuranceRow(row, idx) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
+    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="provider">${row.provider || ''}</span></td>
+    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
+    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="currency">${row.currency || 'USD'}</span></td>
+    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="premium">${row.premium || ''}</span></td>
+    <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="date">${row.date || ''}</span></td>
   `;
   return tr;
 }
@@ -587,9 +640,28 @@ document.addEventListener('click', function(e) {
     const type = span.getAttribute('data-type');
     const idx = parseInt(span.getAttribute('data-idx'));
     const field = span.getAttribute('data-field');
-    const oldValue = span.textContent;
+    let oldValue;
+    let inputType = 'text';
+    if (type === 'bank') {
+      oldValue = dashboardData.Bank[idx][field];
+      if (field === 'value') inputType = 'number';
+    } else if (type === 'investments') {
+      oldValue = dashboardData.Investments[idx][field];
+      if (field === 'value') inputType = 'number';
+    } else if (type === 'properties') {
+      oldValue = dashboardData.Properties[idx][field];
+      if (field === 'value') inputType = 'number';
+    } else if (type === 'otherassets') {
+      oldValue = dashboardData.OtherAssets[idx][field];
+      if (field === 'value') inputType = 'number';
+    } else if (type === 'insurance') {
+      oldValue = dashboardData.Insurance[idx][field];
+      if (field === 'value' || field === 'premium') inputType = 'number';
+    } else if (type === 'land') {
+      oldValue = dashboardData.LandAssets[idx][field];
+    }
     const input = document.createElement('input');
-    input.type = 'text';
+    input.type = inputType;
     input.value = oldValue;
     input.className = 'inline-edit-input';
     span.replaceWith(input);
@@ -597,7 +669,17 @@ document.addEventListener('click', function(e) {
     input.onblur = function() {
       const newValue = input.value.trim();
       if (newValue !== oldValue && newValue !== '') {
-        if (type === 'land') {
+        if (type === 'bank') {
+          dashboardData.Bank[idx][field] = inputType === 'number' ? parseFloat(newValue) : newValue;
+        } else if (type === 'investments') {
+          dashboardData.Investments[idx][field] = inputType === 'number' ? parseFloat(newValue) : newValue;
+        } else if (type === 'properties') {
+          dashboardData.Properties[idx][field] = inputType === 'number' ? parseFloat(newValue) : newValue;
+        } else if (type === 'otherassets') {
+          dashboardData.OtherAssets[idx][field] = inputType === 'number' ? parseFloat(newValue) : newValue;
+        } else if (type === 'insurance') {
+          dashboardData.Insurance[idx][field] = inputType === 'number' ? parseFloat(newValue) : newValue;
+        } else if (type === 'land') {
           dashboardData.LandAssets[idx][field] = newValue;
         }
         setStatus('Value updated. Click Save to Cloud to sync.');
