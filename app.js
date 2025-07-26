@@ -372,7 +372,8 @@ function updateDataTables() {
     let tbody = landTable.querySelector('tbody');
     if (tbody) {
       tbody.innerHTML = '';
-      dashboardData.LandAssets.forEach((row, idx) => {
+      const landArr = Array.isArray(dashboardData.LandAssets) ? dashboardData.LandAssets : [];
+      landArr.forEach((row, idx) => {
         tbody.appendChild(createLandAssetRow(row, idx));
       });
     }
@@ -384,6 +385,17 @@ function updateCharts() {
 }
 
 // --- Utility Functions ---
+function createLandAssetRow(row, idx) {
+  const tr = document.createElement('tr');
+  tr.innerHTML = `
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="location">${row.location || ''}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="size">${row.size || ''}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="gps">${row.gps || ''}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="plotNumber">${row.plotNumber || ''}</span></td>
+    <td><span class="editable" data-type="land" data-idx="${idx}" data-field="registeredTo">${row.registeredTo || ''}</span></td>
+  `;
+  return tr;
+}
 function updateElement(id, value) {
   const element = document.getElementById(id);
   if (element) element.textContent = value;
