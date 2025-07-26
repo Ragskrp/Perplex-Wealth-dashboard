@@ -565,14 +565,19 @@ if (landForm) {
     const location = document.getElementById('landLocation').value.trim();
     const size = document.getElementById('landSize').value.trim();
     const gps = document.getElementById('landGPS').value.trim();
+    const plotNumber = document.getElementById('landPlotNumber').value.trim();
     const registeredTo = document.getElementById('landRegisteredTo').value.trim();
 
     if (!location) return setStatus("Land location is required");
     if (!size) return setStatus("Land size is required");
     if (!gps) return setStatus("GPS coordinates are required");
+    if (!plotNumber) return setStatus("Plot number is required");
     if (!registeredTo) return setStatus("Registered To is required");
 
-    let entry = { location, size, gps, registeredTo };
+    let entry = { location, size, gps, plotNumber, registeredTo };
+
+    // Ensure LandAssets array exists
+    if (!dashboardData.LandAssets) dashboardData.LandAssets = [];
 
     // Update or append
     let found = false;
