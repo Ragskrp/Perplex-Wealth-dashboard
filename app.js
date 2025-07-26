@@ -388,6 +388,7 @@ function updateCharts() {
 function createLandAssetRow(row, idx) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
+    <td>${idx + 1}</td>
     <td><span class="editable" data-type="land" data-idx="${idx}" data-field="location">${row.location || ''}</span></td>
     <td><span class="editable" data-type="land" data-idx="${idx}" data-field="size">${row.size || ''}</span></td>
     <td><span class="editable" data-type="land" data-idx="${idx}" data-field="gps">${row.gps || ''}</span></td>
@@ -419,6 +420,7 @@ function createAssetRow(type, row, idx) {
 function createBankOverviewRow(row, idx) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
+    <td>${idx + 1}</td>
     <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
     <td><span class="editable" data-type="bank" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
     <td>INR</td>
@@ -481,6 +483,7 @@ function createOtherAssetRow(row, idx) {
 function createInsuranceRow(row, idx) {
   const tr = document.createElement('tr');
   tr.innerHTML = `
+    <td>${idx + 1}</td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="name">${row.name || ''}</span></td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="provider">${row.provider || ''}</span></td>
     <td><span class="editable" data-type="insurance" data-idx="${idx}" data-field="value">${fmtMoney(row.value || 0)}</span></td>
